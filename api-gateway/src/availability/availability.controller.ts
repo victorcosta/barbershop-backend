@@ -34,10 +34,14 @@ export class AvailabilityController {
   async findAll(@Req() req: AuthenticatedRequest, @Res() res: Response) {
     try {
       const user = req.user;
+      const authorization = req.headers.authorization;
       const result = await firstValueFrom(
         this.client.send(
           { cmd: 'get_availabilities' },
-          { barbershopId: user.tenantId },
+          {
+            user: user,
+            authorization,
+          },
         ),
       );
       return res.status(result.status || 200).json(result.data);
@@ -57,10 +61,15 @@ export class AvailabilityController {
   ) {
     try {
       const user = req.user;
+      const authorization = req.headers.authorization;
       const result = await firstValueFrom(
         this.client.send(
           { cmd: 'get_availability' },
-          { id, barbershopId: user.tenantId },
+          {
+            id,
+            user: user,
+            authorization,
+          },
         ),
       );
       return res.status(result.status || 200).json(result.data);
@@ -80,10 +89,15 @@ export class AvailabilityController {
   ) {
     try {
       const user = req.user;
+      const authorization = req.headers.authorization;
       const result = await firstValueFrom(
         this.client.send(
           { cmd: 'post_availability' },
-          { createAvailabilityDto, user },
+          {
+            createAvailabilityDto,
+            user,
+            authorization,
+          },
         ),
       );
       return res.status(result.status || 201).json(result.data);
@@ -104,10 +118,16 @@ export class AvailabilityController {
   ) {
     try {
       const user = req.user;
+      const authorization = req.headers.authorization;
       const result = await firstValueFrom(
         this.client.send(
           { cmd: 'put_availability' },
-          { id, updateAvailabilityDto, user },
+          {
+            id,
+            updateAvailabilityDto,
+            user,
+            authorization,
+          },
         ),
       );
       return res.status(result.status || 200).json(result.data);
@@ -127,8 +147,12 @@ export class AvailabilityController {
   ) {
     try {
       const user = req.user;
+      const authorization = req.headers.authorization;
       const result = await firstValueFrom(
-        this.client.send({ cmd: 'delete_availability' }, { id, user }),
+        this.client.send(
+          { cmd: 'delete_availability' },
+          { id, user, authorization },
+        ),
       );
       return res.status(result.status || 204).json(result.data);
     } catch (error) {

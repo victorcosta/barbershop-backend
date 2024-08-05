@@ -8,16 +8,16 @@ import {
   Param,
   Req,
   Res,
-  UseGuards,
   Inject,
+  UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Request, Response } from 'express';
 import { firstValueFrom } from 'rxjs';
 import { AuthGuard } from '../auth/auth.guard';
 import { CreateBarberDto } from './dto/create-barber.dto';
-import { BarberDto } from './dto/barber.dto';
 import { User } from '../auth/user.interface';
+import { BarberDto } from './dto/barber.dto';
 
 interface AuthenticatedRequest extends Request {
   user?: User;
@@ -34,8 +34,9 @@ export class BarberController {
   async findAll(@Req() req: AuthenticatedRequest, @Res() res: Response) {
     try {
       const user = req.user;
+      const authorization = req.headers.authorization;
       const result = await firstValueFrom(
-        this.client.send({ cmd: 'get_barbers' }, { user }),
+        this.client.send({ cmd: 'get_barbers' }, { user, authorization }),
       );
       return res.status(result.status || 200).json(result.data);
     } catch (error) {
@@ -54,8 +55,9 @@ export class BarberController {
   ) {
     try {
       const user = req.user;
+      const authorization = req.headers.authorization;
       const result = await firstValueFrom(
-        this.client.send({ cmd: 'get_barber' }, { id, user }),
+        this.client.send({ cmd: 'get_barber' }, { id, user, authorization }),
       );
       return res.status(result.status || 200).json(result.data);
     } catch (error) {
@@ -74,8 +76,12 @@ export class BarberController {
   ) {
     try {
       const user = req.user;
+      const authorization = req.headers.authorization;
       const result = await firstValueFrom(
-        this.client.send({ cmd: 'post_barber' }, { createBarberDto, user }),
+        this.client.send(
+          { cmd: 'post_barber' },
+          { createBarberDto, user, authorization },
+        ),
       );
       return res.status(result.status || 201).json(result.data);
     } catch (error) {
@@ -89,14 +95,18 @@ export class BarberController {
   @Put(':id')
   async update(
     @Param('id') id: number,
-    @Body() updateBarberDto: BarberDto,
+    @Body() BarberDto: BarberDto,
     @Req() req: AuthenticatedRequest,
     @Res() res: Response,
   ) {
     try {
       const user = req.user;
+      const authorization = req.headers.authorization;
       const result = await firstValueFrom(
-        this.client.send({ cmd: 'put_barber' }, { id, updateBarberDto, user }),
+        this.client.send(
+          { cmd: 'put_barber' },
+          { id, BarberDto, user, authorization },
+        ),
       );
       return res.status(result.status || 200).json(result.data);
     } catch (error) {
@@ -115,8 +125,9 @@ export class BarberController {
   ) {
     try {
       const user = req.user;
+      const authorization = req.headers.authorization;
       const result = await firstValueFrom(
-        this.client.send({ cmd: 'delete_barber' }, { id, user }),
+        this.client.send({ cmd: 'delete_barber' }, { id, user, authorization }),
       );
       return res.status(result.status || 204).json(result.data);
     } catch (error) {
