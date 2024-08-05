@@ -1,0 +1,164 @@
+#docker network create barbershop-backend-net
+networks:
+  barbershop-backend-net:
+    external: true
+    name: barbershop-backend-net  
+    
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+    command: yarn start:dev
+    volumes:
+      - $PWD/api-gateway:/app
+      - $PWD/api-gateway/app/node_modules
+      - $HOME/.cache/yarn:/yarncache
+    environment:
+      PORT: 3000
+      USER_PORT: 4001
+      APPOINTMENT_PORT: 4002
+      AVAILABILITY_PORT: 4003
+      MICROSERVICE_PORT: 4000
+      JWT_SECRET: your_jwt_secret
+    networks:
+      - barbershop-backend-net
+    ports:
+       - '3000:3000'
+    depends_on:
+      - user-service
+      - appointment-service
+      - availability-service
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+      target: stage
+    command: yarn start:dev
+    volumes:
+      - $PWD/user-service:/app
+      - $PWD/user-service/app/node_modules
+      - $HOME/.cache/yarn:/yarncache
+    environment:
+      DB_HOST: user-db
+      DB_PORT: 5432
+      DB_USERNAME: your_username
+      DB_PASSWORD: your_password
+      DB_NAME: user_service
+      JWT_SECRET: your_jwt_secret
+      JWT_EXPIRATION: 60m
+      PORT: 3001
+      MICROSERVICE_PORT: 4001
+    ports:
+      - '3001:3001'
+    networks:
+      - barbershop-backend-net
+    depends_on:
+      - user-db
+
+  appointment-service:
+    build:
+      context: ./appointment-service
+      dockerfile: Dockerfile
+      target: stage
+    command: yarn start:dev
+    volumes:
+      - $PWD/appointment-service:/app
+      - $PWD/appointment-service/app/node_modules
+      - $HOME/.cache/yarn:/yarncache
+    environment:
+      DB_HOST: appointment-db
+      DB_PORT: 5432
+      DB_USERNAME: your_username
+      DB_PASSWORD: your_password
+      DB_NAME: appointment_service
+      JWT_SECRET: your_jwt_secret
+      PORT: 3002
+      MICROSERVICE_PORT: 4002
+    ports:
+      - '3002:3002'
+    networks:
+      - barbershop-backend-net
+    depends_on:
+      - appointment-db
+
+  availability-service:
+    build:
+      context: ./availability-service
+      dockerfile: Dockerfile
+      target: stage
+    command: yarn start:dev
+    volumes:
+      - $PWD/availability-service:/app
+      - $PWD/availability-service/app/node_modules
+      - $HOME/.cache/yarn:/yarncache
+    environment:
+      DB_HOST: availability-db
+      DB_PORT: 5432
+      DB_USERNAME: your_username
+      DB_PASSWORD: your_password
+      DB_NAME: availability_service
+      JWT_SECRET: your_jwt_secret
+      PORT: 3003
+      MICROSERVICE_PORT: 4003
+    ports:
+      - '3003:3003'
+    networks:
+      - barbershop-backend-net
+    depends_on:
+      - availability-db
+
+  user-db:
+    image: postgres:latest
+    hostname: user-db
+    container_name: user-db
+    restart: always
+    environment:
+      POSTGRES_DB: user_service
+      POSTGRES_USER: your_username
+      POSTGRES_PASSWORD: your_password
+    networks:
+      - barbershop-backend-net
+    ports:
+      - '5432:5432'
+    tty: true
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+
+  appointment-db:
+    image: postgres:latest
+    hostname: appointment-db
+    container_name: appointment-db
+    restart: always
+    environment:
+      POSTGRES_DB: appointment_service
+      POSTGRES_USER: your_username
+      POSTGRES_PASSWORD: your_password
+    networks:
+      - barbershop-backend-net
+    ports:
+      - '5433:5432'
+    volumes:
+      - appointment-db-data:/var/lib/postgresql/data
+
+  availability-db:
+    image: postgres:latest
+    hostname: availability-db
+    container_name: availability-db
+    restart: always
+    environment:
+      POSTGRES_DB: availability_service
+      POSTGRES_USER: your_username
+      POSTGRES_PASSWORD: your_password
+    networks:
+      - barbershop-backend-net
+    ports:
+      - '5434:5432'
+    tty: true
+    volumes:
+      - availability-db-data:/var/lib/postgresql/data
+
+volumes:
+  user-db-data:
+  appointment-db-data:
+  availability-db-data:

@@ -1,0 +1,64 @@
+.yarn/
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Swap the comments on the following lines if you don't wish to use zero-installs
+# Documentation here: https://yarnpkg.com/features/zero-installs
+!.yarn/cache
+#.pnp.*
+.env
+.DS_Store
+
+# dependencies
+node_modules/
+dist/
+
+# IDE
+/.idea
+/.awcache
+/.vscode
+/.devcontainer
+/.classpath
+/.project
+/.settings 
+*.code-workspace
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# bundle
+packages/**/*.d.ts
+packages/**/*.js
+
+# misc
+lerna-debug.log
+npm-debug.log
+yarn-error.log
+**/npm-debug.log
+packages/**/.npmignore
+packages/**/LICENSE
+*.tsbuildinfo
+
+# example
+/quick-start
+/example_dist
+/example
+
+# tests
+benchmarks/memory
+coverage
+.nyc_output
+packages/graphql
+benchmarks/memory
+build/config\.gypi
+
+.npmrc
+pnpm-lock.yaml
